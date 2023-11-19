@@ -1,18 +1,17 @@
-
 {% extends "auctions/layout.html" %}
 
 {% block main %}
 
 <h2>
     {% if listing.image %}
-        <div style="display:flex;justify-content:space-evenly;">
-            <img src="{{ listing.image.url }}" width="200px">
-        </div>
+    <div style="display:flex;justify-content:space-evenly;">
+        <img src="{{ listing.image.url }}" width="200px">
+    </div>
     {% endif %}
     {{ listing.title }}
     | <small>High bid: ${{ listing.high_bid_amount }}</small>
     {% if not listing.active %}
-        - Bidding ended
+    - Bidding ended
     {% endif %}
 </h2>
 
@@ -23,83 +22,85 @@
 <div class="listing-categories">
     Categor{{ listing.categories.all|pluralize:"y,ies" }}:
     {% for c in listing.categories.all %}
-        <span class="listing-category">{{ c }}</span>{% if not forloop.last %} - {% endif %}
+    <span class="listing-category">{{ c }}</span>{% if not forloop.last %} - {% endif %}
     {% empty %}
-        None
+    None
     {% endfor %}
 </div>
 
 <p>Created by {{ listing.creator }} at {{ listing.created_at }}</p>
 
-<form action="{% url 'listing' listing.id %}"method="POST">
+<form action="{% url 'listing' listing.id %}" method="POST" id="watchlistForm">
     {% csrf_token %}
 
-    <p>
-        {% if user.is_authenticated %}
-        <button class="listing-button" type="submit" name="doit" value="toggle-watcher">
-            {% if being_watched %}
-                Stop Watching
-            {% else %}
-                Add to my watchlist
-            {% endif %}
-        </button>
+    {% if user.is_authenticated %}
+    <button class="btn btn-primary" type="submit" name="doit" value="toggle-watcher" id="watchlistButton">
+        {% if being_watched %}
+        <i class="bi bi-heart-fill"></i>
+        {% else %}
+        <i class="bi bi-heart"></i>
         {% endif %}
-        {% if listing.watcher_count == 0 %} There are no watchers. You can be the first!
-        {% else %} There {{ listing.watcher_count|pluralize:"is,are" }} {{ listing.watcher_count }} watcher{{ listing.watcher_count|pluralize:"s" }}.
-        {% endif %}
-    </p>
- 
+    </button>
+    {% endif %}
+    {% if listing.watcher_count == 0 %} There are no watchers. You can be the first!
+    {% else %} There {{ listing.watcher_count|pluralize:"is,are" }} {{ listing.watcher_count }}
+    watcher{{listing.watcher_count|pluralize:"s" }}.
+    {% endif %}
+
+
     <p>
         {% if not listing.active %}
-            Bidding for this item has ended. 
-            {% if listing.high_bid %}
-                There were {{ listing.bid_count }} bids. Winning bid was for ${{ listing.high_bid.amount}} by {{ listing.high_bid.bidder }}.
-            {% else %}
-                There were no bids. 
-            {% endif %}
+        Bidding for this item has ended.
+        {% if listing.high_bid %}
+        There were {{ listing.bid_count }} bids. Winning bid was for ${{ listing.high_bid.amount}} by {{
+        listing.high_bid.bidder }}.
         {% else %}
-            {% if user.is_authenticated %}
-                {% if user == listing.creator %}
-                    <button class="listing-button" type="submit" name="doit" value="close-auction">Close Auction</button>
-                {% else %}
-                    <button class="listing-button" type="submit" name="doit" value="bid">Bid!</button>
-                {% endif %}
-            {% endif %}
-            {% if listing.high_bid %}
-                Current high bid is for ${{ listing.high_bid.amount }} by {{ listing.high_bid.bidder }}.
-            {% else %}
-                There are currently no bids. Minimum bid is ${{ listing.minimum_bid }}.
-            {% endif %}
+        There were no bids.
+        {% endif %}
+        {% else %}
+        {% if user.is_authenticated %}
+        {% if user == listing.creator %}
+        <button class="listing-button" type="submit" name="doit" value="close-auction" id="bidButton">Close
+            Auction</button>
+        {% else %}
+        <button class="listing-button" type="submit" name="doit" value="bid">Bid!</button>
+        {% endif %}
+        {% endif %}
+        {% if listing.high_bid %}
+        Current high bid is for ${{ listing.high_bid.amount }} by {{ listing.high_bid.bidder }}.
+        {% else %}
+        There are currently no bids. Minimum bid is ${{ listing.minimum_bid }}.
+        {% endif %}
         {% endif %}
     </p>
 
     <p>
         {% if listing.active %}
-            {% if show_CommentForm %} 
-                </form>
-                {% include 'auctions/new_comment_form.html' %} 
-            {% else %}
-                <button class="listing-button" type="submit" name="doit" value="add-comment">Add Comment</button>
-            {% endif %}
-            {% if listing.comment_count == 0 %} Be the first to comment!
-            {% else %} {{ listing.comment_count }} comments:
-            {% endif %}
-        {% else %}
-            {% if listing.comment_count == 0 %} There were no comments!
-            {% else %} {{ listing.comment_count }} comments:
-            {% endif %}
-        {% endif %}
-    </p>
+        {% if show_CommentForm %}
+</form>
+{% include 'auctions/new_comment_form.html' %}
+{% else %}
+<button class="listing-button" type="submit" name="doit" value="add-comment" id="commentButton">Add Comment</button>
+{% endif %}
+{% if listing.comment_count == 0 %} Be the first to comment!
+{% else %} {{ listing.comment_count }} comments:
+{% endif %}
+{% else %}
+{% if listing.comment_count == 0 %} There were no comments!
+{% else %} {{ listing.comment_count }} comments:
+{% endif %}
+{% endif %}
+</p>
 
 
-    <article class="comments">
+<article class="comments">
     {% for c in listing.comments.all reversed%}
-        <section class="comments">
-            <p>{{ c.comment }}</p>
-            <p>Posted by {{c.commentor}} at {{c.created_at}}</p>
-        </section>
+    <section class="comments">
+        <p>{{ c.comment }}</p>
+        <p>Posted by {{c.commentor}} at {{c.created_at}}</p>
+    </section>
     {% endfor %}
-    </article>
+</article>
 </form>
 
 {% endblock %}
