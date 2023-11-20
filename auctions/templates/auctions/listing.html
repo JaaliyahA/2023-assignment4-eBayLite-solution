@@ -34,7 +34,7 @@
     {% csrf_token %}
 
     {% if user.is_authenticated %}
-    <button class="btn btn-primary mb-3" type="submit" name="doit" value={{listing.id}} id="watchlistButton">
+    <button class="btn btn-primary" type="submit" name="doit" value="toggle-watcher" id="watchlistButton">
         {% if being_watched %}
         <i class="bi bi-heart-fill"></i>
         {% else %}
@@ -76,19 +76,12 @@
 
     <p>
         {% if listing.active %}
+        {% if show_CommentForm %}
 </form>
-<div class="d-none" id="commForm">
-    <form action="" method="POST" class="" id="addCommForm">
-        {% csrf_token %}
-        {{ form.as_table }}
-        <div>
-            <input type="submit" name="cancel" value="Cancel" formnovalidate="formnovalidate">
-            <input type="reset" name="reset" value="Reset">
-            <input type="submit" name="submit" value="Add Comment" id="addcom">
-        </div>
-    </form>
-</div>
-<button class="listing-button" type="submit" name="doit" value={{listing.id}} id="commentButton">Add Comment</button>
+{% include 'auctions/new_comment_form.html' %}
+{% else %}
+<button class="listing-button" type="submit" name="doit" value="add-comment" id="commentButton">Add Comment</button>
+{% endif %}
 {% if listing.comment_count == 0 %} Be the first to comment!
 {% else %} {{ listing.comment_count }} comments:
 {% endif %}

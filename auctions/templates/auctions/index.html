@@ -8,15 +8,6 @@
     {% for listing in listings %}
     <section>
         <h3>
-            {% if user.is_authenticated %}
-            <button class="btn btn-primary" type="button" name="doit" value={{listing.id}} id="watchlistButton">
-                {% if listing.id in watched %}
-                <i class="bi bi-heart-fill"></i>
-                {% else %}
-                <i class="bi bi-heart"></i>
-                {% endif %}
-            </button>
-            {% endif %}
             <a href="{% url 'listing' listing.id %}"">
                     {% if listing.image %}
                         <img src=" {{ listing.image.url }}" width="50px">
@@ -29,6 +20,15 @@
                 - Auction Closed
                 {% endif %}
             </small>
+            {% if user.is_authenticated %}
+            <button class="btn btn-primary" type="submit" name="doit" value="toggle-watcher" id="watchlistButton">
+                {% if being_watched %}
+                <i class="bi bi-heart-fill"></i>
+                {% else %}
+                <i class="bi bi-heart"></i>
+                {% endif %}
+            </button>
+            {% endif %}
         </h3>
         <div class="listing-description">{{ listing.description }}</div>
         <p>
