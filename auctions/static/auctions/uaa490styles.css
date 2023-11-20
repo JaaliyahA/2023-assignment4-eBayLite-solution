@@ -64,3 +64,17 @@ section.comments {
 button>i {
   pointer-events: none;
 }
+
+section.comments {
+  padding: 10px;
+  margin: 0px;
+}
+
+.accordion {
+  background: transparent;
+}
+
+.accordion-item {
+  background: purple;
+  border: none;
+}

@@ -5,6 +5,8 @@ const csrftoken = getCookie('csrftoken');
 // // const bdButton = document.querySelector('#bidButton')
 // // const comButton = document.querySelector('#commentButton')
 
+const collapseElementList = document.querySelectorAll('.collapse')
+const collapseList = [...collapseElementList].map(collapseEl => new bootstrap.Collapse(collapseEl))
 
 function getCookie(name) {
     let cookieValue = null;
