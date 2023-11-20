@@ -72,6 +72,11 @@ def register(request):
 
 
 def index(request):
+    user_watched = request.user.watched_listings.order_by("-id")
+    watched_ids = []
+    for l in user_watched:
+        watched_ids.append(l.id)
+    print(watched_ids)
     return render(
         request,
         "auctions/index.html",
@@ -80,6 +85,7 @@ def index(request):
             .filter(active=True)
             .order_by("-created_at"),
             "banner": "Active Listings",
+            "watched":watched_ids
         },
     )
 
@@ -87,20 +93,22 @@ def index(request):
 def listing(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
     being_watched = listing.watchers.filter(id=request.user.id).exists()
+    form = CommentForm()
     if request.method == 'POST':
         body = request.body.decode('utf-8')
-        clicked = json.loads(body)
-        print(clicked['doit'])
-        clicked= clicked['doit']
+        print(body)
+        data = json.loads(body)
+        clicked= data['doit']
 
         if clicked == "toggle-watcher":
             listing.toggle_watcher(request.user)
+            being_watched = listing.watchers.filter(id=request.user.id).exists()
             response = {
                 "success": True,
+                "id":listing_id,
                 "watching": being_watched
             }
             return JsonResponse(response)
-            # return redirect('listing', listing_id=listing.id)
         elif clicked == "bid":
             return redirect('bid', listing_id=listing.id)
             return HttpResponse("make a bid")
@@ -109,7 +117,18 @@ def listing(request, listing_id):
             listing.save()
             return redirect('my-listings')
         elif clicked == "add-comment":
-            return redirect('add-comment', listing_id=listing_id)
+            #return redirect('add-comment', listing_id=listing_id)
+            formData = data['form']
+            print(formData)
+            print("sending to add comment")
+            res = add_comment(request, listing_id)
+            print(res)
+            response = {
+                "success": False,
+                "id":listing_id,
+                "message": "Problem of some sort"
+            }
+            return res
         else:
             return HttpResponseServerError(f'Unknown button clicked')
     else:
@@ -117,6 +136,7 @@ def listing(request, listing_id):
         return render(request, "auctions/listing.html", {
             'listing': listing,
             'being_watched': being_watched,
+            'form':form
         })
 
 
@@ -126,24 +146,36 @@ def my_listings(request):
     listings1 = Listing.objects.filter(creator=request.user.id).order_by("-created_at")
     listings2 = request.user.listings.all().order_by("-created_at")
 
+    user_watched = request.user.watched_listings.order_by("-id")
+    watched_ids = []
+    for l in user_watched:
+        watched_ids.append(l.id)
+
     return render(
         request,
         "auctions/index.html",
         {
             "listings": request.user.listings.order_by("-created_at"),
             "banner": "My Listings",
+            "watched": watched_ids,
         },
     )
 
 
 @login_required(login_url="login")
 def my_watchlist(request):
+    user_watched = request.user.watched_listings.order_by("-id")
+    watched_ids = []
+    for l in user_watched:
+        watched_ids.append(l.id)
+
     return render(
         request,
         "auctions/index.html",
         {
             "listings": request.user.watched_listings.order_by("-created_at"),
             "banner": "My Watchlist",
+            "watched": watched_ids
         },
     )
 
@@ -217,37 +249,50 @@ def bid(request, listing_id):
         },
     )
 
+    
 
 @login_required(login_url="login")
 def add_comment(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
     if request.method == "POST":
+        print("got to add comment")
         if "cancel" in request.POST:
+            print("if cancel")
             return redirect("listing", listing_id=listing_id)
-        form = CommentForm(request.POST, request.FILES)
+        
+        body = request.body.decode('utf-8')
+        print(body)
+        data = json.loads(body)
+        formData = data['form']
+
+        form = CommentForm(formData)
         if form.is_valid():
+            print("first if valid")
             comment = form.save(commit=False)
             comment.commentor = request.user
             comment.listing = listing
             comment.save()
-            return redirect("listing", listing_id=listing_id)
+            response = {
+                "success": True,
+                "id":listing_id,
+            }
+            return JsonResponse(response)
+            #return redirect("listing", listing_id=listing_id)
         else:
-            messages.error(request, "Problem creating the comment. Details below.")
+            print('else not valid')
+            #messages.error(request, "Problem creating the comment. Details below.")
+            response = {
+                "success": False,
+                "id":listing_id,
+                "message": "Problem with validation"
+            }
+            return JsonResponse(response)
     else:
-        form = CommentForm()
-    return render(
-        request,
-        "auctions/listing.html",
-        {"form": form, "listing": listing, "show_CommentForm": "yes"},
-    )
-
-
-from django.http import JsonResponse
-import json
-
-
-def api(request):
-
-
-    return JsonResponse({"success": True})
-
+        print('else nothing')
+    #     form = CommentForm()
+    # return render(
+    #     request,
+    #     "auctions/listing.html",
+    #     {"form": form, "listing": listing, "show_CommentForm": "yes"},
+    # )
+        
