@@ -29,8 +29,7 @@ body {
 .listing-description,
 .listing-categories {
   border: 1px solid black;
-  font-style: italic;
-  background-color: seashell;
+  background-color: #ced9ea;
   padding: .5rem;
 }
 
@@ -63,4 +62,29 @@ section.comments {
 
 button>i {
   pointer-events: none;
+}
+
+section.comments {
+  padding: 10px;
+  margin: 0px;
+}
+
+.accordion-header {
+  color: #525252;
+}
+
+.accordion-item {
+  background: #e6ecf5;
+  border: none;
+}
+
+body {
+  background: #e0e1dd;
+}
+
+.accordion {
+  --bs-accordion-btn-bg: #778da9;
+  --bs-accordion-btn-color: white;
+  --bs-accordion-active-bg: #1b263b;
+  --bs-accordion-active-color: white;
 }

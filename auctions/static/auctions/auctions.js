@@ -1,11 +1,10 @@
-
-
-// const wlButton = document.getElementById('watchlistButton').value
 const csrftoken = getCookie('csrftoken');
-// // const bdButton = document.querySelector('#bidButton')
-// // const comButton = document.querySelector('#commentButton')
 
+// bootstrap collapse
+const collapseElementList = document.querySelectorAll('.collapse')
+const collapseList = [...collapseElementList].map(collapseEl => new bootstrap.Collapse(collapseEl))
 
+// extract the csrf token from django template
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -22,7 +21,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-
+// toggle watchlist without page refresh via fetch
 function handleWatchlist(id, url) {
     let body = {
         "doit": "toggle-watcher"
@@ -49,11 +48,9 @@ function handleWatchlist(id, url) {
                 document.querySelector(`[value="${id}"]`).innerHTML = `<i class="bi bi-heart"></i>`
             }
         })
-    // let watch = document.querySelector('#watchlistButton').value
-    // watch = !watch;
-    // console.log(watch)
-
 }
+
+// create comment without page refresh or redirect via fetch
 function handleComments(id, form) {
     const url = window.location.href
     let formInp = {}
@@ -105,18 +102,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const wlButton = document.querySelectorAll('#watchlistButton')
     const listingWatchlist = document.querySelector('#watchlistForm')
 
+    if (wlButton.length != 0 && !listingWatchlist) {
+        wlButton.forEach(link => link.addEventListener('click', e => {
+            let id = link.value
+            let url = `listing/${id}`
+            handleWatchlist(id, url);
+        }))
+
+    }
     if (listingWatchlist) {
         const watchlist = document.querySelector('#watchlistButton')
         const comment = document.getElementById('commentButton')
 
-        if (wlButton.length != 0 && !listingWatchlist) {
-            wlButton.forEach(link => link.addEventListener('click', e => {
-                let id = link.value
-                let url = `listing/${id}`
-                handleWatchlist(id, url);
-            }))
-
-        }
 
         if (watchlist && comment) {
             watchlist.addEventListener('click', e => {

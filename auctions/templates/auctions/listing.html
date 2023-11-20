@@ -5,21 +5,22 @@
 <h2>
     {% if listing.image %}
     <div style="display:flex;justify-content:space-evenly;">
-        <img src="{{ listing.image.url }}" width="200px">
+        <img clas="shadow" src="{{ listing.image.url }}" width="200px">
     </div>
     {% endif %}
-    {{ listing.title }}
+    <h1 class="display-6">{{ listing.title }}</h1>
+
     | <small>High bid: ${{ listing.high_bid_amount }}</small>
     {% if not listing.active %}
     - Bidding ended
     {% endif %}
 </h2>
 
-<div class="listing-description">
+<div class="listing-description mt-3 p-6">
     {{ listing.description }}
 </div>
 
-<div class="listing-categories">
+<div class="listing-categories mb-3 p-6">
     Categor{{ listing.categories.all|pluralize:"y,ies" }}:
     {% for c in listing.categories.all %}
     <span class="listing-category">{{ c }}</span>{% if not forloop.last %} - {% endif %}
@@ -28,7 +29,7 @@
     {% endfor %}
 </div>
 
-<p>Created by {{ listing.creator }} at {{ listing.created_at }}</p>
+<p class="fst-italic">Created by {{ listing.creator }} at {{ listing.created_at }}</p>
 
 <form action="{% url 'listing' listing.id %}" method="POST" id="watchlistForm">
     {% csrf_token %}
@@ -60,10 +61,11 @@
         {% else %}
         {% if user.is_authenticated %}
         {% if user == listing.creator %}
-        <button class="listing-button" type="submit" name="doit" value="close-auction" id="bidButton">Close
+        <button class="listing-button btn btn-outline-primary" type="submit" name="doit" value="close-auction"
+            id="bidButton">Close
             Auction</button>
         {% else %}
-        <button class="listing-button" type="submit" name="doit" value="bid">Bid!</button>
+        <button class="listing-button btn btn-outline-primary" type="submit" name="doit" value="bid">Bid!</button>
         {% endif %}
         {% endif %}
         {% if listing.high_bid %}
@@ -88,7 +90,8 @@
         </div>
     </form>
 </div>
-<button class="listing-button" type="submit" name="doit" value={{listing.id}} id="commentButton">Add Comment</button>
+<button class="listing-button btn btn-outline-primary" type="submit" name="doit" value={{listing.id}}
+    id="commentButton">Add Comment</button>
 {% if listing.comment_count == 0 %} Be the first to comment!
 {% else %} {{ listing.comment_count }} comments:
 {% endif %}
